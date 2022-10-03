@@ -284,6 +284,7 @@ populateTrends(NDependOut);
 const options = {
     continueOnError: true
 }
+/*
 if(baselineFound && ndependResultFile!=""  && fs.existsSync(ndependResultFile))
 {
     var baselineDir=NDependOut+"/Baseline";
@@ -295,7 +296,7 @@ if(baselineFound && ndependResultFile!=""  && fs.existsSync(ndependResultFile))
   
     artifactFiles.push(baselinePath);
 }
-
+*/
 /*if (configPath!="" &&  fs.existsSync(configfilePath) && configfilePath.indexOf(".ndproj")>0) 
 {
     fs.copyFileSync(configfilePath, NDependOut+"/project.ndproj");
