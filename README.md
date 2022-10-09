@@ -1,116 +1,96 @@
-# Create a JavaScript Action
+# NDepend GitHub Action
 
-<p align="center">
-  <a href="https://github.com/actions/javascript-action/actions"><img alt="javscript-action status" src="https://github.com/actions/javascript-action/workflows/units-test/badge.svg"></a>
-</p>
+The GitHub Action lets run an NDepend analysis after each rebuild and explore results in a shared interactive HTML+js report. This Action can also fail the build upon some Quality Gate(s) failure.
 
-Use this template to bootstrap the creation of a JavaScript action.:rocket:
+With a Developer license, the standalone app VisualNDepend.exe or the NDepend Visual Studio extension can be used to explore the result in more details.
 
-This template includes tests, linting, a validation workflow, publishing, and versioning guidance.
 
-If you are new, there's also a simpler introduction.  See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
+## Activate the trial license for your repository
 
-## Create an action from this template
+Get the license trial data from the [NDepend web site](  https://www.ndepend.com/activation_githubaction)
 
-Click the `Use this Template` and provide the new repo details for your action
+Got to the settings of your repository
+![alt text](https://docs.github.com/assets/cb-27528/images/help/repository/repo-actions-settings.png)
 
-## Code in Main
-
-Install the dependencies
-
-```bash
-npm install
-```
-
-Run the tests :heavy_check_mark:
-
-```bash
-$ npm test
-
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
-...
-```
-
-## Change action.yml
-
-The action.yml defines the inputs and output for your action.
-
-Update the action.yml with your name, description, inputs and outputs for your action.
-
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
-
-## Change the Code
-
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
-
-```javascript
-const core = require('@actions/core');
-...
-
-async function run() {
-  try {
-      ...
-  }
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
-
-## Package for distribution
-
-GitHub Actions will run the entry point from the action.yml. Packaging assembles the code into one file that can be checked in to Git, enabling fast and reliable execution and preventing the need to check in node_modules.
-
-Actions are run from GitHub repos.  Packaging the action will create a packaged action in the dist folder.
-
-Run prepare
-
-```bash
-npm run prepare
-```
-
-Since the packaged index.js is run from the dist folder.
-
-```bash
-git add dist
-```
-
-## Create a release branch
-
-Users shouldn't consume the action from master since that would be latest code and actions can break compatibility between major versions.
-
-Checkin to the v1 release branch
-
-```bash
-git checkout -b v1
-git commit -a -m "v1 release"
-```
-
-```bash
-git push origin v1
-```
-
-Note: We recommend using the `--license` option for ncc, which will create a license file for all of the production node modules used in your project.
-
-Your action is now published! :rocket:
-
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
+From the left side bar goto Secrets->Actions, create a new secret named NDependLicense and paste the license data retreived from the ndepend website.
 
 ## Usage
 
-You can now consume the action by referencing the v1 branch
+The ndepend action must be added after your build and unit testing actions, note that only the license parameter is mandatory.
 
 ```yaml
-uses: actions/javascript-action@v1
-with:
-  milliseconds: 1000
+- name: NDepend
+    uses: ndepend/ndepend-action@v1
+    with:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+      license: ${{ secrets.NDependLicense }}
+```
+After the analysis, the ndepend result is stored as artifact of your build, and to explore it you have two options:
+
+- Download the ndepend artifact from your build summary, and open the generated report.
+- Access the result from VisualNDepend as explained [here](https://www.ndepend.com/github-doc). 
+
+
+## Action options
+
+- Custom NDepend Configuration: By default the ndepend action uses the out of the box configuration, so this parameter is not mandatory. However, if you need to use a custom configuration you have to specify the `customconfig` parameter 
+
+```yaml
+- name: NDepend
+    uses: ndepend/ndepend-action@v1
+    with:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+      license: ${{ secrets.NDependLicense }}
+      customconfig: NDependConfigFile.ndproj
+```
+The NDependConfigFile.ndproj path is relative to your repository root.
+
+- Comparison baseline:
+NDepend can report Code Diff since baseline, and to define the ndepend baseline you have to specify the `baseline` parameter 
+
+```yaml
+- name: NDepend
+    uses: ndepend/ndepend-action@v1
+    with:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+      license: ${{ secrets.NDependLicense }}
+      baseline: recent
 ```
 
-See the [actions tab](https://github.com/actions/javascript-action/actions) for runs of this action! :rocket:
+The baseline parameter could have these values:
+
+- recent: to compare with the recent build analyzed by ndepend.
+- branchname_recent: To compare with the recent build of the branch with name 'branchname'
+- build number: The build number of build already analyzed by NDepend.
+
+- Quality check: stopIfQGFailed
+A Quality Gate is a code quality goal.Such quality goal must be enforced before releasing and eventually, before committing to source control.
+
+A Quality Gate can be seen as a PASS/FAIL criterion for software quality.
+
+A dozen of default Quality Gates are proposed by NDepend related to measures like technical debt amount, code coverage or amount of issues with particular severity.
+
+To break the build if at least one quality gate failed, you have to specify the `stopIfQGFailed` parameter 
+
+
+```yaml
+- name: NDepend
+    uses: ndepend/ndepend-action@v1
+    with:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+      license: ${{ secrets.NDependLicense }}
+      stopIfQGFailed: true
+```
+
+- Coverage folder:
+Code coverage data is imported from coverage result files generated by the coverage tools.
+To import coverage data, you have to specify the `coveragefolder` parameter 
+
+```yaml
+- name: NDepend
+    uses: ndepend/ndepend-action@v1
+    with:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+      license: ${{ secrets.NDependLicense }}
+      coveragefolder: ${{ env.GITHUB_WORKSPACE }}/CoverageOut
+```
