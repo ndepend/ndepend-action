@@ -33,7 +33,8 @@ After the analysis, the ndepend result is stored as artifact of your build, and 
 
 ## Action options
 
-### Custom NDepend Configuration: By default the ndepend action uses the out of the box configuration, so this parameter is not mandatory. However, if you need to use a custom configuration you have to specify the `customconfig` parameter 
+### Custom NDepend Configuration:
+By default the ndepend action uses the out of the box configuration, so this parameter is not mandatory. However, if you need to use a custom configuration you have to specify the `customconfig` parameter 
 
 ```yaml
 - name: NDepend
@@ -63,7 +64,7 @@ The baseline parameter could have these values:
 - branchname_recent: To compare with the recent build of the branch with name 'branchname'
 - build number: The build number of build already analyzed by NDepend.
 
-### Quality check: stopIfQGFailed
+### Quality check:
 A Quality Gate is a code quality goal.Such quality goal must be enforced before releasing and eventually, before committing to source control.
 
 A Quality Gate can be seen as a PASS/FAIL criterion for software quality.
