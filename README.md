@@ -7,6 +7,7 @@ This Action can also fail the build upon some Quality Gate(s) failure.
 
 With a Developer license, the standalone app VisualNDepend.exe or the NDepend Visual Studio extension can download the NDepend Github Action analysis results locally for further exploration.
 
+**The NDepend GitHub Action runs only on the worker machine and zero data (source code, account or anything) is shared remotely with ndepend.com or any other third-party.**
 
 ## Activate the trial license for your repository
 
@@ -48,6 +49,19 @@ By default the ndepend action uses the out of the box configuration, so this par
       customconfig: project.ndproj
 ```
 The project.ndproj file must be uploaded to your repository, its path is relative to your repository root. And its name could be any name of your choice. 
+
+### Visual Studio Solution:
+By default the ndepend action parse the .sln existing in your repository. However, if many .sln files are found you have to secify which solution to parse. For that you can use `solution` parameter 
+
+```yaml
+- name: NDepend
+    uses: ndepend/ndepend-action@v1
+    with:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+      license: ${{ secrets.NDependLicense }}
+      solution: src/mysolution.sln
+```
+The solution path is relative to your repository root. 
 
 ### Comparison baseline:
 NDepend can report Code &amp; Quality Diff since a baseline. To define the ndepend baseline you have to specify the `baseline` parameter 
