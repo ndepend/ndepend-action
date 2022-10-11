@@ -7,7 +7,7 @@ This Action can also fail the build upon some Quality Gate(s) failure.
 
 With a Developer license, the standalone app VisualNDepend.exe or the NDepend Visual Studio extension can download the NDepend Github Action analysis results locally for further exploration.
 
-**The NDepend GitHub Action runs only on the worker machine and zero data (source code, account or anything) is shared remotely with ndepend.com or any other third-party.**
+**The NDepend GitHub Action runs only on the worker machine and zero data (source code, account, analysis result, or anything) is shared remotely with ndepend.com or any other third-party. Indeed, the NDepend analysis result is stored as an artifact of your build.**
 
 ## Activate the trial license for your repository
 
