@@ -114,4 +114,4 @@ To import coverage data, you have to specify the `coveragefolder` parameter
       license: ${{ secrets.NDependLicense }}
       coveragefolder: ${{ env.GITHUB_WORKSPACE }}/CoverageOut
 ```
-This way the NDepend default rules about [code coverage](https://www.ndepend.com/default-rules/NDepend-Rules-Explorer.html?ruleid=ND1600#!] will be executed. See this [documentation](https://www.ndepend.com/docs/code-coverage ) about coverage technologies and formats supported by NDepend and other code coverage data usage.
+This way the NDepend default rules about [code coverage](https://www.ndepend.com/default-rules/NDepend-Rules-Explorer.html?ruleid=ND1600#!) will be executed. See this [documentation](https://www.ndepend.com/docs/code-coverage ) about coverage technologies and formats supported by NDepend and other code coverage data usage.
