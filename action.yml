@@ -1,23 +1,27 @@
 name: 'NDepend'
 description: 'NDepend parser'
 inputs:
-  license:  # id of input
+  license:  
     description: 'NDepend license file'
     required: true
     default: ''
-  baseline:  # id of input
+  baseline:  
     description: 'NDepend baseline'
     required: false
     default: ''
-  stopIfQGFailed:  # id of input
+  solution:  
+    description: '.sln file'
+    required: false
+    default: ''
+  stopIfQGFailed:  
     description: 'Stop if at least one quality gate failed'
     required: false
     default: false
-  customconfig:  # id of input
+  customconfig:  
     description: 'Custom NDepend configuration file'
     required: false
     default: ''
-  coveragefolder:  # id of input
+  coveragefolder: 
     description: 'Coverage Directory'
     required: false
     default: ''
