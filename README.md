@@ -78,8 +78,24 @@ NDepend can report Code &amp; Quality Diff since a baseline. To define the ndepe
 The baseline parameter could have these values:
 
 - recent: to compare with the most recent build analyzed by ndepend.
-- branchname_recent: To compare with the most recent build of the branch with name 'branchname'
-- run number: The run number of a build already analyzed by NDepend.
+- branchname_recent: To compare with the most recent build of the branch with name 'branchname', for example if you want to compare with the recent build of the branch named `mydev`
+```yaml
+- name: NDepend
+    uses: ndepend/ndepend-action@v1
+    with:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+      license: ${{ secrets.NDependLicense }}
+      baseline: mydev_recent
+```
+- run number: The run number of a build already analyzed by NDepend., for example if you want to compare with the build having the run number 30
+```yaml
+- name: NDepend
+    uses: ndepend/ndepend-action@v1
+    with:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+      license: ${{ secrets.NDependLicense }}
+      baseline: 30
+```
 
 ### Quality check:
 A Quality Gate is a code quality goal. Such quality goal must be enforced before releasing and eventually, before committing to source control.
