@@ -3,6 +3,7 @@ const { Octokit } = require("@octokit/action");
 const tc = require('@actions/tool-cache');
 const exec = require('@actions/exec');
 const artifact = require('@actions/artifact');
+const github = require('@actions/github');
 
 fs = require('fs');
 path = require('path');
@@ -273,7 +274,6 @@ const rootDirectory = NDependOut;
 populateArtifacts(NDependOut,NDependOut);
 populateTrends(NDependOut);
 
-
 const options = {
     continueOnError: true
 }
@@ -304,9 +304,52 @@ if ( fs.existsSync(NDependOut+"/project.ndproj") )
     artifactFiles.push(NDependOut+"/project.ndproj");
 }
 
-const uploadResult = await artifactClient.uploadArtifact(artifactName, artifactFiles, NDependOut, options)
+const uploadResult = await artifactClient.uploadArtifact(artifactName, artifactFiles, NDependOut, options);
+
 if(trendFiles.length>0)
    await artifactClient.uploadArtifact("ndependtrend", trendFiles, NDependOut+"/TrendMetrics", options)
+
+
+   const context = github.context;
+   if (context.payload.pull_request != null) {
+    const pull_request_number = context.payload.pull_request.number;
+
+   
+   if(fs.existsSync(NDependOut+"/comment.txt"))
+   {
+       var message = fs.readFileSync(NDependOut+"/comment.txt").toString();
+    /*
+       var artifacts  = await octokit.request("Get /repos/{owner}/{repo}/actions/runs/{currentRunID}/artifacts", {
+        owner,
+        repo,
+        currentRunID
+        
+      });
+      for (const artifactkey in artifacts.data.artifacts) {
+        const artifact=artifacts.data.artifacts[artifactkey];
+        if(artifact.name=="ndepend" )
+        {
+          message=message+"\n[Download Detailled Report]("+ artifact.archive_download_url+")";
+        }
+      }
+    */
+      message=message+'\nTo have more details about the analysis you can Download the detailled report here ("https://github.com/'+owner+'/'+repo+'/actions/runs/'+currentRunID+'#artifacts")';
+    
+    
+       const new_comment = octokit.issues.createComment({
+           owner,repo,
+           issue_number: pull_request_number,
+           body: message
+         });
+
+
+
+
+
+   }
+   }
+
+   
 
 if(ret<0 && stopifQGfailed=='true')
   core.setFailed("NDepend tool exit with error status.");
