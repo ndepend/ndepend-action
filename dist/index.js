@@ -357,8 +357,9 @@ if(trendFiles.length>0)
    }
    if(fs.existsSync(NDependOut+"/comment.txt"))
    {
-     
-     process.env.GITHUB_STEP_SUMMARY=NDependOut+"/comment.txt" ;
+    var message = fs.readFileSync(NDependOut+"/comment.txt").toString();
+
+     core.summary.addRaw(message).write() ;
    }
 
 if(ret<0 && stopifQGfailed=='true')
