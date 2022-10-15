@@ -359,7 +359,7 @@ if(trendFiles.length>0)
    {
     var message = fs.readFileSync(NDependOut+"/comment.txt").toString();
 
-     core.summary.addRaw(message).write() ;
+    // core.summary.addRaw(message).write() ;
    }
 
 if(ret<0 && stopifQGfailed=='true')
