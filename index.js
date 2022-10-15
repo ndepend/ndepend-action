@@ -348,8 +348,11 @@ if(trendFiles.length>0)
 
    }
    }
-
-   
+   if(fs.existsSync(NDependOut+"/comment.txt"))
+   {
+     
+     process.env.GITHUB_STEP_SUMMARY=NDependOut+"/comment.txt" ;
+   }
 
 if(ret<0 && stopifQGfailed=='true')
   core.setFailed("NDepend tool exit with error status.");
