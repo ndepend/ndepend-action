@@ -131,3 +131,16 @@ To import coverage data, you have to specify the `coveragefolder` parameter
       coveragefolder: ${{ env.GITHUB_WORKSPACE }}/CoverageOut
 ```
 This way the NDepend default rules about [code coverage](https://www.ndepend.com/default-rules/NDepend-Rules-Explorer.html?ruleid=ND1600#!) will be executed. See this [documentation](https://www.ndepend.com/docs/code-coverage ) about coverage technologies and formats supported by NDepend and other code coverage data usage.
+
+### NDepend result artifact retention:
+The NDepend action store the analysis result as artifact . However, to optimize the storage of your GitHub account you can use the `retention-days` parameter to specify the retention period of the NDepend artifacts.
+
+```yaml
+- name: NDepend
+    uses: ndepend/ndepend-action@v1
+    with:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
+      license: ${{ secrets.NDependLicense }}
+      retention-days: 10
+```
+
