@@ -257,7 +257,7 @@ async function run() {
       }
     if(stopifQGfailed=='true')
       args.push("/stopBuild");
-
+    var ret=0;
     try{
       var isLinux = process.platform === "linux";
       if(isLinux)
