@@ -328,11 +328,13 @@ async function run() {
         var message = fs.readFileSync(NDependOut+"/comment.txt").toString();
         //core.exportVariable("GITHUB_STEP_SUMMARY",NDependOut+"/comment.txt")
         core.summary.addRaw(message).write() ;
+
+        if(message.indexOf("at least one Quality Gate failed")>0 && stopifQGfailed=='true')
+          core.setFailed("The NDepend action failed the build because at least one Quality Gate failed and stopIfQGFailed is set to true  in the action options.");
+
       }
 
-      if(ret==2 && stopifQGfailed==true)
-        core.setFailed("The NDepend action failed the build because at least one Quality Gate failed and stopIfQGFailed is set to true  in the action options.");
-
+     
       
       
       } catch (error) {
