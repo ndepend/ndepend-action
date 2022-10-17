@@ -137,6 +137,8 @@ async function run() {
     const solution=core.getInput('solution');
     const configPath = core.getInput('customconfig');
     const coveragePath = core.getInput('coveragefolder');
+    const retentionDaysStr = core.getInput('retention-days')
+   
     var branch=process.env.GITHUB_HEAD_REF;
     if(branch=="")
         branch="main";
@@ -256,18 +258,23 @@ async function run() {
     if(stopifQGfailed=='true')
       args.push("/stopBuild");
 
-    var isLinux = process.platform === "linux";
-    if(isLinux)
-    {
-      
-      var NDependLinuxParser=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/net6.0/GitHubActionAnalyzer.MultiOS.dll";
-      args.unshift(NDependLinuxParser);
-      ret=await exec.exec("dotnet", args);
+    try{
+      var isLinux = process.platform === "linux";
+      if(isLinux)
+      {
+        
+        var NDependLinuxParser=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/net6.0/GitHubActionAnalyzer.MultiOS.dll";
+        args.unshift(NDependLinuxParser);
+        ret=await exec.exec("dotnet", args);
+      }
+      else
+        ret=await exec.exec(NDependParser, args);
+
     }
-    else
-      ret=await exec.exec(NDependParser, args);
+    catch(error)
+    {
 
-
+    }
 
     const artifactClient = artifact.create()
     const artifactName = 'ndepend';
@@ -280,7 +287,17 @@ async function run() {
     const options = {
         continueOnError: true
     }
-
+    if (retentionDaysStr!='') {
+      var retention = parseInt(retentionDaysStr)
+      if (isNaN(retention)) {
+        core.setFailed('Invalid retention-days')
+      }
+      else
+      {
+        options.retentionDays=retention;
+      }
+  }
+   
     if ( fs.existsSync(NDependOut+"/project.ndproj") ) 
     {
         
@@ -321,7 +338,7 @@ async function run() {
       }
 
       if(ret<0 && stopifQGfailed=='true')
-        core.setFailed("NDepend tool exit with error status.");
+        core.setFailed("The build failed because at least one quality gate failed.");
 
       
       

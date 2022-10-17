@@ -25,6 +25,11 @@ inputs:
     description: 'Coverage Directory'
     required: false
     default: ''
+  retention-days:
+    description: 'NDepend artifact retention'
+    required: false
+    default: ''
+
   GITHUB_TOKEN:
     description: 'GitHub Token'
     required: true
