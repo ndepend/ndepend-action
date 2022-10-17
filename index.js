@@ -330,7 +330,7 @@ async function run() {
         core.summary.addRaw(message).write() ;
       }
 
-      if(ret==2 && stopifQGfailed=='true')
+      if(ret==2 && stopifQGfailed==true)
         core.setFailed("The NDepend action failed the build because at least one Quality Gate failed and stopIfQGFailed is set to true  in the action options.");
 
       
