@@ -1,5 +1,8 @@
 name: 'NDepend'
 description: 'NDepend parser'
+branding:
+  icon: 'check-circle'
+  color: 'blue'
 inputs:
   license:  # id of input
     description: 'NDepend license file'
