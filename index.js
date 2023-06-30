@@ -146,8 +146,8 @@ async function run() {
 
     //get ndepend and extract it
     const ndependToolURL = await tc.downloadTool('https://www.codergears.com/protected/GitHubActionAnalyzer.zip');
-    //fs.copyFileSync(ndependToolURL, _getTempDirectory()+"/NDependTask.zip",fs.constants.COPYFILE_FICLONE_FORCE);
-    const ndependExtractedFolder = await tc.extractZip(ndependToolURL, _getTempDirectory()+'/NDepend');
+    fs.copyFileSync(ndependToolURL, _getTempDirectory()+"/NDependTask.zip",fs.constants.COPYFILE_FICLONE_FORCE);
+    const ndependExtractedFolder = await tc.extractZip(_getTempDirectory()+"/NDependTask.zip", _getTempDirectory()+'/NDepend');
     var NDependParser=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/GitHubActionAnalyzer.exe"
     const licenseFile=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/NDependGitHubActionProLicense.xml"
     const configFile=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/NDependConfig.ndproj"
