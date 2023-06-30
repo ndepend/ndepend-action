@@ -4,6 +4,8 @@ const tc = require('@actions/tool-cache');
 const exec = require('@actions/exec');
 const artifact = require('@actions/artifact');
 const github = require('@actions/github');
+const io = require('@actions/io');
+
 fs = require('fs');
 path = require('path');
 
@@ -147,7 +149,8 @@ async function run() {
     //get ndepend and extract it
     const ndependToolURL = await tc.downloadTool('https://www.codergears.com/protected/GitHubActionAnalyzer.zip');
     //fs.copyFileSync(ndependToolURL, _getTempDirectory()+"/NDependTask.zip",fs.constants.COPYFILE_FICLONE_FORCE);
-    const ndependExtractedFolder = await tc.extractZip(ndependToolURL, _getTempDirectory()+'/NDepend');
+    await io.cp(ndependToolURL, _getTempDirectory()+"/NDependTask.zip")
+    const ndependExtractedFolder = await tc.extractZip(_getTempDirectory()+"/NDependTask.zip", _getTempDirectory()+'/NDepend');
     var NDependParser=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/GitHubActionAnalyzer.exe"
     const licenseFile=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/NDependGitHubActionProLicense.xml"
     const configFile=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/NDependConfig.ndproj"
