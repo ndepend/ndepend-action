@@ -186,7 +186,7 @@ async function run() {
         else if(baseline.lastIndexOf('_recent')>0)
         {
           var currentBranch=baseline.substring(0,baseline.lastIndexOf('_recent'));
-          if(currentBranch==branch)
+          if(currentBranch==run.head_branch)
               baselineFound= await checkIfNDependExists(owner,repo,runid,octokit,NDependBaseline,baseLineDir);
         }
         else if(run.run_number.toString()==baseline)
