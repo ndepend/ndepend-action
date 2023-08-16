@@ -134,7 +134,10 @@ async function run() {
     const coveragePath = core.getInput('coveragefolder');
     const retentionDaysStr = core.getInput('retention-days')
    
-    var branch=process.env.GITHUB_HEAD_REF;
+    var branch=process.env.GITHUB_REF;
+     if(branch.lastIndexOf('/')>0)
+          branch=branch.substring(branch.lastIndexOf('/')+1);
+       
     if(branch=="")
         branch="main";
 
