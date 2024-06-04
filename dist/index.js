@@ -72308,7 +72308,7 @@ function populateArtifacts(dir,basedir) {
       if(path.relative( basedir, fullPath ).indexOf("_")>0 || path.relative( basedir, fullPath ).indexOf("NDependReportFiles")>=0 || fullPath.indexOf("/NDependReportFiles/src")>=0  )
           populateArtifacts(fullPath,basedir);
      } else {
-      if( (dir!=basedir  && (path.relative( basedir, fullPath ).indexOf("_")>0) || fullPath.indexOf("/NDependReportFiles/src")>=0))
+      if( dir!=basedir  && (path.relative( basedir, fullPath ).indexOf("_")>0 || fullPath.indexOf("/NDependReportFiles/src")>=0))
       {
          artifactFiles.push(fullPath);
       }
