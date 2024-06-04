@@ -18,10 +18,10 @@ function populateArtifacts(dir,basedir) {
   fs.readdirSync(dir).forEach(file => {
     let fullPath = path.join(dir, file);
     if (fs.lstatSync(fullPath).isDirectory()) {
-      if(path.relative( basedir, fullPath ).indexOf("_")>0 || path.relative( basedir, fullPath ).indexOf("NDependReportFiles")>=0 || path.relative( basedir, fullPath ).indexOf("src")>=0  )
+      if(path.relative( basedir, fullPath ).indexOf("_")>0 || path.relative( basedir, fullPath ).indexOf("NDependReportFiles")>=0 || path.indexOf("/NDependReportFiles/src")>=0  )
           populateArtifacts(fullPath,basedir);
      } else {
-      if( (dir!=basedir  && path.relative( basedir, fullPath ).indexOf("_")>0) || fullPath.indexOf("/NDependReportFiles/src")>=0)
+      if( (dir!=basedir  && (path.relative( basedir, fullPath ).indexOf("_")>0) || fullPath.indexOf("/NDependReportFiles/src")>=0))
       {
          artifactFiles.push(fullPath);
       }
