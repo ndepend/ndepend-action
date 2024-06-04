@@ -196,7 +196,9 @@ async function run() {
     
 
     //add license file in ndepend install directory
+    fs.mkdirSync(trendsDir);
     fs.mkdirSync(NDependOut);
+    
     fs.writeFileSync(licenseFile, license);
     runs  = await octokit.request("Get /repos/{owner}/{repo}/actions/runs", {
       owner,
