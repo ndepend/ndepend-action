@@ -115,6 +115,35 @@ async function checkIfNDependExists(owner,repo,runid,octokit,NDependBaseline,bas
     }
   }
 }
+async function copyTrendFileIfExists(owner,repo,runid,octokit,trendsDir)
+{
+  const NDependTrendsZip=_getTempDirectory()+"/trends"+runid+".zip";
+    
+  const artifacts  = await octokit.request("Get /repos/{owner}/{repo}/actions/runs/{runid}/artifacts", {
+    owner,
+    repo,
+    runid
+  });
+  for (const artifactKey in artifacts.data.artifacts) {
+    const artifact=artifacts.data.artifacts[artifactKey];
+    if(artifact.name=="ndependtrend")
+    {
+      
+      var artifactid=artifact.id;
+      //core.info("artifact found:"+artifactid);
+
+      response  = await octokit.request("Get /repos/{owner}/{repo}/actions/artifacts/{artifactid}/zip", {
+        owner,
+        repo,
+        artifactid
+      });
+      
+      fs.writeFileSync(NDependTrendsZip, Buffer.from(response.data),  "binary",function(err) { });
+      const baselineExtractedFolder = await tc.extractZip(NDependTrendsZip, trendsDir);
+      return true;
+    }
+  }
+}
 
 async function run() {
   try {
@@ -159,8 +188,12 @@ async function run() {
     const licenseFile=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/NDependGitHubActionProLicense.xml"
     const configFile=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/NDependConfig.ndproj"
     const baseLineDir=_getTempDirectory()+'/NDependBaseLine';
+    const trendsDir=_getTempDirectory()+'/NDependTrends';
+    
     const NDependOut=_getTempDirectory()+"/NDependOut";
     const NDependBaseline=_getTempDirectory()+"/baseline.zip";
+    const NDependTrendsZip=_getTempDirectory()+"/trends.zip";
+    
 
     //add license file in ndepend install directory
     fs.mkdirSync(NDependOut);
@@ -176,6 +209,11 @@ async function run() {
       if(run.repository.name==repo )
       {
         const runid=run.id;
+        if (run.head_branch==branch)
+          {
+             await copyTrendFileIfExists(owner,repo,runid,octokit,NDependTrendsZip,trendsDir);
+          }
+          
         if (baseline=='recent' && run.head_branch==branch)
         {
           baselineFound= await checkIfNDependExists(owner,repo,runid,octokit,NDependBaseline,baseLineDir);
@@ -207,7 +245,7 @@ async function run() {
         
       
     }
-    var args=['/sourceDirectory',workspace,'/outputDirectory',NDependOut,'/githubRootUrl',rooturl,'/account',owner,'/identifier',repo,'/buildId',currentRunNumber+" Id "+currentRunID];
+    var args=['/sourceDirectory',workspace,'/outputDirectory',NDependOut,'/trendsDirectory',trendsDir,'/githubRootUrl',rooturl,'/account',owner,'/identifier',repo,'/buildId',currentRunNumber+" Id "+currentRunID];
 
     var configfilePath=workspace+"/"+configPath;
       if (!fs.existsSync(configfilePath)) {
