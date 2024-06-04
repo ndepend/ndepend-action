@@ -72405,7 +72405,7 @@ async function checkIfNDependExists(owner,repo,runid,octokit,NDependBaseline,bas
 async function copyTrendFileIfExists(owner,repo,runid,octokit,trendsDir)
 {
   const NDependTrendsZip=_getTempDirectory()+"/trends"+runid+".zip";
-    
+  
   const artifacts  = await octokit.request("Get /repos/{owner}/{repo}/actions/runs/{runid}/artifacts", {
     owner,
     repo,
@@ -72424,10 +72424,10 @@ async function copyTrendFileIfExists(owner,repo,runid,octokit,trendsDir)
         repo,
         artifactid
       });
-      
+      const NDependTrendsDir=  trendsDir+"/run"+runid;
       fs.writeFileSync(NDependTrendsZip, Buffer.from(response.data),  "binary",function(err) { });
-      const baselineExtractedFolder = await tc.extractZip(NDependTrendsZip, trendsDir);
-      return true;
+          const baselineExtractedFolder = await tc.extractZip(NDependTrendsZip, NDependTrendsDir);
+          return true;
     }
   }
 }
