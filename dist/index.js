@@ -72384,7 +72384,7 @@ async function checkIfNDependExists(owner,repo,runid,octokit,NDependBaseline,bas
   });
   for (const artifactKey in artifacts.data.artifacts) {
     const artifact=artifacts.data.artifacts[artifactKey];
-    if(artifact.name=="ndepend")
+    if(artifact.name=="ndepend" && !artifact.expired)
     {
       
       var artifactid=artifact.id;
@@ -72413,7 +72413,7 @@ async function copyTrendFileIfExists(owner,repo,runid,octokit,trendsDir)
   });
   for (const artifactKey in artifacts.data.artifacts) {
     const artifact=artifacts.data.artifacts[artifactKey];
-    if(artifact.name=="ndependtrend")
+    if(artifact.name=="ndependtrend" && !artifact.expired)
     {
       
       var artifactid=artifact.id;
