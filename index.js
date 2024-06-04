@@ -192,7 +192,7 @@ async function run() {
     
     const NDependOut=_getTempDirectory()+"/NDependOut";
     const NDependBaseline=_getTempDirectory()+"/baseline.zip";
-    const NDependTrendsZip=_getTempDirectory()+"/trends.zip";
+    // const NDependTrendsZip=_getTempDirectory()+"/trends.zip";
     
 
     //add license file in ndepend install directory
@@ -213,7 +213,7 @@ async function run() {
         const runid=run.id;
         if (run.head_branch==branch)
           {
-             await copyTrendFileIfExists(owner,repo,runid,octokit,NDependTrendsZip,trendsDir);
+             await copyTrendFileIfExists(owner,repo,runid,octokit,trendsDir);
           }
           
         if (baseline=='recent' && run.head_branch==branch)
