@@ -2,7 +2,8 @@ const core = require('@actions/core');
 const { Octokit } = require("@octokit/action");
 const tc = require('@actions/tool-cache');
 const exec = require('@actions/exec');
-const artifact = require('@actions/artifact');
+const {DefaultArtifactClient} = require('@actions/artifact')
+const artifact = new DefaultArtifactClient();
 const github = require('@actions/github');
 const io = require('@actions/io');
 
