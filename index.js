@@ -318,7 +318,7 @@ async function run() {
 
     }
 
-    const artifactClient = artifact.create()
+    const artifactClient = new DefaultArtifactClient();
     const artifactName = 'ndepend';
 
     var files=[];
