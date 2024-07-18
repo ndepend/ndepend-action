@@ -184,7 +184,7 @@ async function run() {
     const ndependToolURL = await tc.downloadTool('https://www.codergears.com/protected/GitHubActionAnalyzer.zip');
     //fs.copyFileSync(ndependToolURL, _getTempDirectory()+"/NDependTask.zip",fs.constants.COPYFILE_FICLONE_FORCE);
     await io.cp(ndependToolURL, _getTempDirectory()+"/NDependTask.zip")
-    const tooldata = fs.readFileSync(_getTempDirectory()+"/NDependTask.zip", 'utf8');
+    /*const tooldata = fs.readFileSync(_getTempDirectory()+"/NDependTask.zip", 'utf8');
 
     const blobData = await octokit.git.createBlob({
       owner: owner,
@@ -193,7 +193,7 @@ async function run() {
       encoding: 'utf-8',
     })
     core.info("Get NDepend Analyzer with the SHA:");
-    core.info(blobData.data.sha);
+    core.info(blobData.data.sha);*/
     const ndependExtractedFolder = await tc.extractZip(_getTempDirectory()+"/NDependTask.zip", _getTempDirectory()+'/NDepend');
     var NDependParser=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/GitHubActionAnalyzer.exe"
     const licenseFile=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/NDependGitHubActionProLicense.xml"
