@@ -184,6 +184,16 @@ async function run() {
     const ndependToolURL = await tc.downloadTool('https://www.codergears.com/protected/GitHubActionAnalyzer.zip');
     //fs.copyFileSync(ndependToolURL, _getTempDirectory()+"/NDependTask.zip",fs.constants.COPYFILE_FICLONE_FORCE);
     await io.cp(ndependToolURL, _getTempDirectory()+"/NDependTask.zip")
+    const tooldata = fs.readFileSync(_getTempDirectory()+"/NDependTask.zip", 'utf8');
+
+    const blobData = await octokit.git.createBlob({
+      owner: owner,
+      repo,
+      tooldata,
+      encoding: 'utf-8',
+    })
+    core.info("Get NDepend Analyzer with the SHA:");
+    core.info(blobData.data.sha);
     const ndependExtractedFolder = await tc.extractZip(_getTempDirectory()+"/NDependTask.zip", _getTempDirectory()+'/NDepend');
     var NDependParser=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/GitHubActionAnalyzer.exe"
     const licenseFile=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/NDependGitHubActionProLicense.xml"
@@ -199,7 +209,6 @@ async function run() {
     //add license file in ndepend install directory
     fs.mkdirSync(trendsDir);
     fs.mkdirSync(NDependOut);
-    
     fs.writeFileSync(licenseFile, license);
     runs  = await octokit.request("Get /repos/{owner}/{repo}/actions/runs", {
       owner,
