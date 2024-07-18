@@ -6,7 +6,7 @@ const {DefaultArtifactClient} = require('@actions/artifact')
 const artifact = new DefaultArtifactClient();
 const github = require('@actions/github');
 const io = require('@actions/io');
-
+const crypto = require('crypto');
 fs = require('fs');
 path = require('path');
 
@@ -14,6 +14,9 @@ const artifactFiles=[];
 var artifactsRoot="";
 const trendFiles=[];
 const solutions=[];
+function calculateSHA(input, algorithm = 'sha256') {
+  return crypto.createHash(algorithm).update(input).digest('hex');
+}
 
 function populateArtifacts(dir,basedir) {
   fs.readdirSync(dir).forEach(file => {
@@ -184,16 +187,12 @@ async function run() {
     const ndependToolURL = await tc.downloadTool('https://www.codergears.com/protected/GitHubActionAnalyzer.zip');
     //fs.copyFileSync(ndependToolURL, _getTempDirectory()+"/NDependTask.zip",fs.constants.COPYFILE_FICLONE_FORCE);
     await io.cp(ndependToolURL, _getTempDirectory()+"/NDependTask.zip")
-    /*const tooldata = fs.readFileSync(_getTempDirectory()+"/NDependTask.zip", 'utf8');
+    const tooldata = fs.readFileSync(_getTempDirectory()+"/NDependTask.zip", 'utf8');
 
-    const blobData = await octokit.git.createBlob({
-      owner: owner,
-      repo,
-      tooldata,
-      encoding: 'utf-8',
-    })
+    const hash = calculateSHA(tooldata, 'sha256');
     core.info("Get NDepend Analyzer with the SHA:");
-    core.info(blobData.data.sha);*/
+    core.info(hash);
+    
     const ndependExtractedFolder = await tc.extractZip(_getTempDirectory()+"/NDependTask.zip", _getTempDirectory()+'/NDepend');
     var NDependParser=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/GitHubActionAnalyzer.exe"
     const licenseFile=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/NDependGitHubActionProLicense.xml"
