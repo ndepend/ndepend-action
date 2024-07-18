@@ -7,6 +7,7 @@ const artifact = new DefaultArtifactClient();
 const github = require('@actions/github');
 const io = require('@actions/io');
 const crypto = require('crypto');
+const NDependAnalyzerHash="0261c493c1df2789c402cb85c3fb81877acd3e2943136f819862ac540a39501e"
 fs = require('fs');
 path = require('path');
 
@@ -192,7 +193,10 @@ async function run() {
     const hash = calculateSHA(tooldata, 'sha256');
     core.info("Get NDepend Analyzer with the SHA:");
     core.info(hash);
-    
+    if(hash!=NDependAnalyzerHash)
+    {
+      core.setFailed("The NDepend Analyzer SHA does not match the latest tool hash. Please contact the NDepend support to have more details about the issue.")
+    }
     const ndependExtractedFolder = await tc.extractZip(_getTempDirectory()+"/NDependTask.zip", _getTempDirectory()+'/NDepend');
     var NDependParser=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/GitHubActionAnalyzer.exe"
     const licenseFile=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/NDependGitHubActionProLicense.xml"
