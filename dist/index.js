@@ -94031,6 +94031,8 @@ const exec = __nccwpck_require__(3970);
 const artifact = __nccwpck_require__(5170);
 const github = __nccwpck_require__(4334);
 const io = __nccwpck_require__(9207);
+const crypto = __nccwpck_require__(6113);
+const NDependAnalyzerHash="0261c493c1df2789c402cb85c3fb81877acd3e2943136f819862ac540a39501e"
 
 fs = __nccwpck_require__(7147);
 path = __nccwpck_require__(1017);
@@ -94039,6 +94041,9 @@ const artifactFiles=[];
 var artifactsRoot="";
 const trendFiles=[];
 const solutions=[];
+function calculateSHA(input, algorithm = 'sha256') {
+  return crypto.createHash(algorithm).update(input).digest('hex');
+}
 
 function populateArtifacts(dir,basedir) {
   fs.readdirSync(dir).forEach(file => {
@@ -94199,7 +94204,7 @@ async function run() {
 
     let rooturl=process.env.GITHUB_SERVER_URL+"/"+process.env.GITHUB_REPOSITORY+"/blob/"+branch;
 
-    
+
     if(license=='')
         core.setFailed("The ndepend license is not specified, Please ensure that the license input is present in your workflow.")
 
@@ -94210,6 +94215,15 @@ async function run() {
     const ndependToolURL = await tc.downloadTool('https://www.codergears.com/protected/GitHubActionAnalyzer.zip');
     //fs.copyFileSync(ndependToolURL, _getTempDirectory()+"/NDependTask.zip",fs.constants.COPYFILE_FICLONE_FORCE);
     await io.cp(ndependToolURL, _getTempDirectory()+"/NDependTask.zip")
+    const tooldata = fs.readFileSync(_getTempDirectory()+"/NDependTask.zip", 'utf8');
+
+    const hash = calculateSHA(tooldata, 'sha256');
+    core.info("Get NDepend Analyzer with the SHA:");
+    core.info(hash);
+    if(hash!=NDependAnalyzerHash)
+    {
+      core.setFailed("The NDepend Analyzer SHA does not match the latest tool hash. Please contact the NDepend support to have more details about the issue.")
+    }
     const ndependExtractedFolder = await tc.extractZip(_getTempDirectory()+"/NDependTask.zip", _getTempDirectory()+'/NDepend');
     var NDependParser=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/GitHubActionAnalyzer.exe"
     const licenseFile=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/NDependGitHubActionProLicense.xml"
