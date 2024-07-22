@@ -173,6 +173,7 @@ async function run() {
 
     let rooturl=process.env.GITHUB_SERVER_URL+"/"+process.env.GITHUB_REPOSITORY+"/blob/"+branch;
 
+    
     if(license=='')
         core.setFailed("The ndepend license is not specified, Please ensure that the license input is present in your workflow.")
 
