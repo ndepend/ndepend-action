@@ -94176,7 +94176,7 @@ async function copyTrendFileIfExists(owner,repo,runid,octokit,trendsDir)
   }
 }
 function isGitHubRunId(str) {
-  return /^\d{8,10}$/.test(str); // Accepts run IDs between 8 and 10 digits long
+  return /^\d{8,12}$/.test(str); // Accepts run IDs between 8 and 10 digits long
 }
 async function run() {
   try {
@@ -94251,7 +94251,10 @@ async function run() {
 
     // Check if the input is a valid integer
     if (isGitHubRunId(baseline)) {
+      
+      
       runsUrl="Get /repos/{owner}/{repo}/actions/runs/"+baseline;
+      core.info("Baseline to compare with has the run url:"+runsUrl)
     }
     //if run id add run id
     //else get only 20 latest runs of the branch
