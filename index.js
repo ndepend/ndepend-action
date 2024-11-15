@@ -220,14 +220,14 @@ async function run() {
     //per_page=100
     var baselineFound=false;
     var currentBranch=baseline.substring(0,baseline.lastIndexOf('_recent'));
-    var runsUrl="Get /repos/{owner}/{repo}/actions/runs?status=completed&per_page=100&branch="+branch;
+    var runsUrl="Get /repos/"+owner+"/"+repo+"/actions/runs?status=completed&per_page=100&branch="+branch;
     const baselineId = Number(baseline);
 
     // Check if the input is a valid integer
     if (isGitHubRunId(baseline)) {
       
       
-      runsUrl="Get /repos/{owner}/{repo}/actions/runs/"+baseline;
+      runsUrl="Get /repos/"+owner+"/"+repo+"/actions/runs/"+baseline;
       core.info("Baseline to compare with has the run url:"+runsUrl)
     }
     //if run id add run id
