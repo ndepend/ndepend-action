@@ -11,7 +11,6 @@ const NDependAnalyzerHash="0261c493c1df2789c402cb85c3fb81877acd3e2943136f819862a
 fs = require('fs');
 path = require('path');
 
-
 const artifactFiles=[];
 var artifactsRoot="";
 const trendFiles=[];
@@ -150,7 +149,9 @@ async function copyTrendFileIfExists(owner,repo,runid,octokit,trendsDir)
     }
   }
 }
-
+function isGitHubRunId(str) {
+  return /^\d{8,12}$/.test(str); // Accepts run IDs between 8 and 10 digits long
+}
 async function run() {
   try {
     
@@ -220,6 +221,43 @@ async function run() {
       
     });
     var baselineFound=false;
+    var currentBranch=baseline.substring(0,baseline.lastIndexOf('_recent'));
+      // Check if the input is a valid integer
+    if (isGitHubRunId(baseline)) {
+      
+      
+      
+      const runId = Number(baseline);
+      
+      try {
+     const run  = await octokit.request("GET /repos/{owner}/{repo}/actions/runs/{run_id}", {
+        owner,
+        repo,
+        run_id: runId,
+        
+      });
+      
+        
+        baselineFound= await checkIfNDependExists(owner,repo,run.data.id,octokit,NDependBaseline,baseLineDir);
+    }
+        catch (error) {
+          if (error.status === 404) {
+            core.warning("run id :"+baseline+" not found.");
+          } else {
+            core.warning("No NDepend artifacts found for this run id :"+baseline);
+          }
+          
+        }
+      
+    }
+    else
+    {
+      runs  = await octokit.request("Get /repos/{owner}/{repo}/actions/runs?status=completed&per_page=100&branch={branch}", {
+        owner,
+        repo,
+        branch
+        
+      });
     for (const runkey in runs.data.workflow_runs) {
       const run=runs.data.workflow_runs[runkey];
       if(run.repository.name==repo )
@@ -236,7 +274,6 @@ async function run() {
         }
         else if(baseline.lastIndexOf('_recent')>0)
         {
-          var currentBranch=baseline.substring(0,baseline.lastIndexOf('_recent'));
           if(currentBranch==run.head_branch)
               baselineFound= await checkIfNDependExists(owner,repo,runid,octokit,NDependBaseline,baseLineDir);
         }
@@ -251,7 +288,8 @@ async function run() {
           break;
         }
       }
-    };
+    }
+}
     if(baseline!=''  && !baselineFound)
     {
         if(baseline.indexOf("recent")<0 && isNaN(baseline))
