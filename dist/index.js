@@ -94265,8 +94265,13 @@ async function run() {
       
     });
     if (isGitHubRunId(baseline)) {
-      baselineFound= await checkIfNDependExists(owner,repo,baseline,octokit,NDependBaseline,baseLineDir);
+      if (Array.isArray(runs.data.workflow_runs) && runs.data.workflow_runs.length === 1) {
+        const run=runs.data.workflow_runs[0];
+        core.info("run found:"+run.id);
+        baselineFound= await checkIfNDependExists(owner,repo,baseline,octokit,NDependBaseline,baseLineDir);
   
+      } 
+   
     }
     else
     {
