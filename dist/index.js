@@ -94263,14 +94263,14 @@ async function run() {
         
       });
       
-        core.info("run found:"+run.data.id);
+        
         baselineFound= await checkIfNDependExists(owner,repo,run.data.id,octokit,NDependBaseline,baseLineDir);
     }
         catch (error) {
           if (error.status === 404) {
             core.warning("run id :"+baseline+" not found.");
           } else {
-            core.warning("no NDepend artifacts found for this run id :"+baseline);
+            core.warning("No NDepend artifacts found for this run id :"+baseline);
           }
           
         }
@@ -94323,7 +94323,7 @@ async function run() {
         if(baseline.indexOf("recent")<0 && isNaN(baseline))
             core.warning("The baseline value "+baseline+ " is not valid. Valid values are recent , branch_recent, specific run number");
         else
-            core.warning("No baseline to compare found for :"+baseline);
+            core.warning("No NDepend artifacts found for the baseline, please check if the artifacts are not expired.");
         
       
     }
