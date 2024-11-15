@@ -94246,24 +94246,35 @@ async function run() {
     //per_page=100
     var baselineFound=false;
     var currentBranch=baseline.substring(0,baseline.lastIndexOf('_recent'));
-    var runsUrl="Get /repos/"+owner+"/"+repo+"/actions/runs?status=completed&per_page=100&branch="+branch;
     const baselineId = Number(baseline);
 
     // Check if the input is a valid integer
     if (isGitHubRunId(baseline)) {
       
       
-      runsUrl="Get /repos/"+owner+"/"+repo+"/actions/runs/"+baseline;
-      core.info("Baseline to compare with has the run url:"+runsUrl)
+      runid=baseline;
+      runs  = await octokit.request("Get /repos/{owner}/{repo}/actions/runs/{runid}", {
+        owner,
+        repo,
+        runid
+        
+      });
+      
+    }
+    else
+    {
+      var runsUrl="Get /repos/{owner}/{repo}/actions/runs?status=completed&per_page=100&branch="+branch;
+      runs  = await octokit.request("Get /repos/{owner}/{repo}/actions/runs?status=completed&per_page=100&branch={branch}", {
+        owner,
+        repo,
+        branch
+        
+      });
     }
     //if run id add run id
     //else get only 20 latest runs of the branch
     
-    runs  = await octokit.request(runsUrl, {
-      owner,
-      repo
-      
-    });
+   
     if (isGitHubRunId(baseline)) {
       if (Array.isArray(runs.data.workflow_runs) && runs.data.workflow_runs.length === 1) {
         const run=runs.data.workflow_runs[0];
