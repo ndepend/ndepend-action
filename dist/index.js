@@ -94255,22 +94255,26 @@ async function run() {
       
       const runId = Number(baseline);
       core.info("check baseline:"+runId)
-    
-      runs  = await octokit.request("GET /repos/{owner}/{repo}/actions/runs/{run_id}", {
+      try {
+     const run  = await octokit.request("GET /repos/{owner}/{repo}/actions/runs/{run_id}", {
         owner,
         repo,
         run_id: runId,
         
       });
-      core.info("runs found:"+JSON.stringify(runs));
       
-      for (const runkey in runs.data.workflow_runs) {
-        const run=runs.data.workflow_runs[runkey];
-        
         core.info("run found:"+run.id);
         baselineFound= await checkIfNDependExists(owner,repo,run.id,octokit,NDependBaseline,baseLineDir);
-  
-      } 
+    }
+        catch (error) {
+          if (error.status === 404) {
+            core.warning("run id :"+baseline+" not found.");
+          } else {
+            core.warning("no NDepend artifacts found for this run id :"+baseline);
+          }
+          
+        }
+      
     }
     else
     {
