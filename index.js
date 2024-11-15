@@ -236,8 +236,9 @@ async function run() {
         run_id: runId,
         
       });
-      if (Array.isArray(runs.data.workflow_runs) && runs.data.workflow_runs.length === 1) {
-        const run=runs.data.workflow_runs[0];
+      for (const runkey in runs.data.workflow_runs) {
+        const run=runs.data.workflow_runs[runkey];
+        
         core.info("run found:"+run.id);
         baselineFound= await checkIfNDependExists(owner,repo,run.id,octokit,NDependBaseline,baseLineDir);
   
