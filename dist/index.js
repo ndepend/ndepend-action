@@ -94253,8 +94253,8 @@ async function run() {
       
       
       
-      const runid = Number(baseline);
-      core.info("check baseline:"+runid)
+      const runId = Number(baseline);
+      core.info("check baseline:"+runId)
     
       runs  = await octokit.request("GET /repos/{owner}/{repo}/actions/runs/{run_id}", {
         owner,
