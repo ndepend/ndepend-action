@@ -94256,13 +94256,18 @@ async function run() {
       const runid = Number(baseline);
       core.info("check baseline:"+runid)
     
-      runs  = await octokit.request("Get /repos/{owner}/{repo}/actions/runs/{runid}", {
+      runs  = await octokit.request("GET /repos/{owner}/{repo}/actions/runs/{run_id}", {
         owner,
         repo,
-        runid
+        run_id: runId,
         
       });
-      
+      if (Array.isArray(runs.data.workflow_runs) && runs.data.workflow_runs.length === 1) {
+        const run=runs.data.workflow_runs[0];
+        core.info("run found:"+run.id);
+        baselineFound= await checkIfNDependExists(owner,repo,run.id,octokit,NDependBaseline,baseLineDir);
+  
+      } 
     }
     else
     {
@@ -94272,23 +94277,8 @@ async function run() {
         branch
         
       });
-    }
-    //if run id add run id
-    //else get only 20 latest runs of the branch
-    
    
-    if (isGitHubRunId(baseline)) {
-      
-      if (Array.isArray(runs.data.workflow_runs) && runs.data.workflow_runs.length === 1) {
-        const run=runs.data.workflow_runs[0];
-        core.info("run found:"+run.id);
-        baselineFound= await checkIfNDependExists(owner,repo,run.id,octokit,NDependBaseline,baseLineDir);
-  
-      } 
    
-    }
-    else
-    {
     for (const runkey in runs.data.workflow_runs) {
       const run=runs.data.workflow_runs[runkey];
       if(run.repository.name==repo )
