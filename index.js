@@ -11,6 +11,7 @@ const NDependAnalyzerHash="0261c493c1df2789c402cb85c3fb81877acd3e2943136f819862a
 fs = require('fs');
 path = require('path');
 
+
 const artifactFiles=[];
 var artifactsRoot="";
 const trendFiles=[];
@@ -215,14 +216,11 @@ async function run() {
     fs.mkdirSync(trendsDir);
     fs.mkdirSync(NDependOut);
     fs.writeFileSync(licenseFile, license);
-    runs  = await octokit.request("Get /repos/{owner}/{repo}/actions/runs", {
-      owner,
-      repo
-      
-    });
     var baselineFound=false;
     var currentBranch=baseline.substring(0,baseline.lastIndexOf('_recent'));
-      // Check if the input is a valid integer
+    
+
+    // Check if the input is a valid integer
     if (isGitHubRunId(baseline)) {
       
       
@@ -289,7 +287,7 @@ async function run() {
         }
       }
     }
-}
+  }
     if(baseline!=''  && !baselineFound)
     {
         if(baseline.indexOf("recent")<0 && isNaN(baseline))
