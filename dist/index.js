@@ -94261,7 +94261,12 @@ async function run() {
       repo
       
     });
-    
+    if (isGitHubRunId(baseline)) {
+      baselineFound= await checkIfNDependExists(owner,repo,baseline,octokit,NDependBaseline,baseLineDir);
+  
+    }
+    else
+    {
     for (const runkey in runs.data.workflow_runs) {
       const run=runs.data.workflow_runs[runkey];
       if(run.repository.name==repo )
@@ -94292,7 +94297,8 @@ async function run() {
           break;
         }
       }
-    };
+    }
+  }
     if(baseline!=''  && !baselineFound)
     {
         if(baseline.indexOf("recent")<0 && isNaN(baseline))
