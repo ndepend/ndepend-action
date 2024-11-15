@@ -228,7 +228,7 @@ async function run() {
       
       
       const runId = Number(baseline);
-      core.info("check baseline:"+runId)
+      
       try {
      const run  = await octokit.request("GET /repos/{owner}/{repo}/actions/runs/{run_id}", {
         owner,
@@ -237,8 +237,8 @@ async function run() {
         
       });
       
-        core.info("run found:"+run.id);
-        baselineFound= await checkIfNDependExists(owner,repo,run.id,octokit,NDependBaseline,baseLineDir);
+        core.info("run found:"+run.data.id);
+        baselineFound= await checkIfNDependExists(owner,repo,run.data.id,octokit,NDependBaseline,baseLineDir);
     }
         catch (error) {
           if (error.status === 404) {
