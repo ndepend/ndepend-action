@@ -149,7 +149,9 @@ async function copyTrendFileIfExists(owner,repo,runid,octokit,trendsDir)
     }
   }
 }
-
+function isGitHubRunId(str) {
+  return /^\d{8,10}$/.test(str); // Accepts run IDs between 8 and 10 digits long
+}
 async function run() {
   try {
     
@@ -215,12 +217,25 @@ async function run() {
     fs.mkdirSync(NDependOut);
     
     fs.writeFileSync(licenseFile, license);
-    runs  = await octokit.request("Get /repos/{owner}/{repo}/actions/runs", {
+    //per_page=100
+    var baselineFound=false;
+    var currentBranch=baseline.substring(0,baseline.lastIndexOf('_recent'));
+    var runsUrl="Get /repos/{owner}/{repo}/actions/runs?status=completed&per_page=100&branch="+branch;
+    const baselineId = Number(baseline);
+
+    // Check if the input is a valid integer
+    if (isGitHubRunId(baseline)) {
+      runsUrl="Get /repos/{owner}/{repo}/actions/runs/"+baseline;
+    }
+    //if run id add run id
+    //else get only 20 latest runs of the branch
+    
+    runs  = await octokit.request(runsUrl, {
       owner,
       repo
       
     });
-    var baselineFound=false;
+    
     for (const runkey in runs.data.workflow_runs) {
       const run=runs.data.workflow_runs[runkey];
       if(run.repository.name==repo )
@@ -237,7 +252,6 @@ async function run() {
         }
         else if(baseline.lastIndexOf('_recent')>0)
         {
-          var currentBranch=baseline.substring(0,baseline.lastIndexOf('_recent'));
           if(currentBranch==run.head_branch)
               baselineFound= await checkIfNDependExists(owner,repo,runid,octokit,NDependBaseline,baseLineDir);
         }
