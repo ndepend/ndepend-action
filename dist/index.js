@@ -94252,7 +94252,8 @@ async function run() {
     if (isGitHubRunId(baseline)) {
       
       
-      runid=baseline;
+      
+      const runid = Number(baseline);
       runs  = await octokit.request("Get /repos/{owner}/{repo}/actions/runs/{runid}", {
         owner,
         repo,
@@ -94263,7 +94264,6 @@ async function run() {
     }
     else
     {
-      var runsUrl="Get /repos/{owner}/{repo}/actions/runs?status=completed&per_page=100&branch="+branch;
       runs  = await octokit.request("Get /repos/{owner}/{repo}/actions/runs?status=completed&per_page=100&branch={branch}", {
         owner,
         repo,
@@ -94276,10 +94276,12 @@ async function run() {
     
    
     if (isGitHubRunId(baseline)) {
+      core.info("runs:"+runs.data.workflow_runs.length)
+    
       if (Array.isArray(runs.data.workflow_runs) && runs.data.workflow_runs.length === 1) {
         const run=runs.data.workflow_runs[0];
         core.info("run found:"+run.id);
-        baselineFound= await checkIfNDependExists(owner,repo,baseline,octokit,NDependBaseline,baseLineDir);
+        baselineFound= await checkIfNDependExists(owner,repo,run.id,octokit,NDependBaseline,baseLineDir);
   
       } 
    
