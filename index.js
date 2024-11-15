@@ -236,6 +236,8 @@ async function run() {
         run_id: runId,
         
       });
+      core.info("runs found:"+JSON.stringify(runs));
+      
       for (const runkey in runs.data.workflow_runs) {
         const run=runs.data.workflow_runs[runkey];
         
