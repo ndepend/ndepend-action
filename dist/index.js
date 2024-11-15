@@ -94254,6 +94254,8 @@ async function run() {
       
       
       const runid = Number(baseline);
+      core.info("check baseline:"+runid)
+    
       runs  = await octokit.request("Get /repos/{owner}/{repo}/actions/runs/{runid}", {
         owner,
         repo,
@@ -94276,8 +94278,7 @@ async function run() {
     
    
     if (isGitHubRunId(baseline)) {
-      core.info("runs:"+runs.data.workflow_runs.length)
-    
+      
       if (Array.isArray(runs.data.workflow_runs) && runs.data.workflow_runs.length === 1) {
         const run=runs.data.workflow_runs[0];
         core.info("run found:"+run.id);
