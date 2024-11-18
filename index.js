@@ -259,9 +259,10 @@ async function run() {
       });
       core.info(JSON.stringify(workflowsResponse));
       const workflows = workflowsResponse.data.workflows;
-      core.info(`Current workflow name is: ${workflowName}`);
+     
 
       const workflow_id=workflows.find(w => w.name === workflowName);
+      core.info(`Current workflow name is: ${workflow_id}`);
       runs  = await octokit.request("Get /repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs?status=completed&per_page=100&branch={branch}", {
         owner,
         repo,
