@@ -162,7 +162,7 @@ async function run() {
     const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
     const currentRunNumber=process.env.GITHUB_RUN_NUMBER;
     const currentRunID=process.env.GITHUB_RUN_ID;
-
+    const workflowName=process.env.GITHUB_WORKFLOW;
     const workspace=process.env.GITHUB_WORKSPACE;
     const license=core.getInput('license');
     const baseline=core.getInput('baseline');
@@ -221,6 +221,8 @@ async function run() {
     
 
     // Check if the input is a valid integer
+    if(baseline!='')
+      {
     if (isGitHubRunId(baseline)) {
       
       
@@ -250,9 +252,16 @@ async function run() {
     }
     else
     {
-      runs  = await octokit.request("Get /repos/{owner}/{repo}/actions/runs?status=completed&per_page=100&branch={branch}", {
+      const workflows=await octokit.request("Get /repos/{owner}/{repo}/actions/workflows", {
+        owner,
+        repo
+        
+      });
+      const workflow_id=workflows.find(w => w.name === workflowName);
+      runs  = await octokit.request("Get /repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs?status=completed&per_page=100&branch={branch}", {
         owner,
         repo,
+        workflow_id,
         branch
         
       });
@@ -297,6 +306,7 @@ async function run() {
         
       
     }
+  }
     var args=['/sourceDirectory',workspace,'/outputDirectory',NDependOut,'/trendsDirectory',trendsDir,'/githubRootUrl',rooturl,'/account',owner,'/identifier',repo,'/buildId',currentRunNumber+" Id "+currentRunID];
 
     var configfilePath=workspace+"/"+configPath;
