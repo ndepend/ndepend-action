@@ -257,7 +257,7 @@ async function run() {
         repo
         
       });
-      core.info(JSON.stringify(workflowsResponse));
+      
       const workflows = workflowsResponse.data.workflows;
      
 
