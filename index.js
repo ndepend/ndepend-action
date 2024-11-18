@@ -252,11 +252,12 @@ async function run() {
     }
     else
     {
-      const workflows=await octokit.request("Get /repos/{owner}/{repo}/actions/workflows", {
+      const workflowsResponse=await octokit.request("Get /repos/{owner}/{repo}/actions/workflows", {
         owner,
         repo
         
       });
+      const workflows = workflowsResponse.data.workflows;
       const workflow_id=workflows.find(w => w.name === workflowName);
       runs  = await octokit.request("Get /repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs?status=completed&per_page=100&branch={branch}", {
         owner,
