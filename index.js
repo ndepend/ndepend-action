@@ -264,14 +264,14 @@ async function run() {
       const currentWorkflow=workflows.find(w => w.name === workflowName);
       const workflow_id=currentWorkflow.id;
    
-      core.info(`Current workflow name is: ${workflow_id}`);
+      
       runs  = await octokit.request("Get /repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs?status=completed&per_page=100&branch={branch}", {
         owner,
         repo,
         workflow_id,
-        branch
-        
+        branch       
       });
+      core.info(JSON.stringify(runs));
     for (const runkey in runs.data.workflow_runs) {
       const run=runs.data.workflow_runs[runkey];
       if(run.repository.name==repo )
