@@ -161,7 +161,7 @@ async function run() {
     const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
     const currentRunNumber=process.env.GITHUB_RUN_NUMBER;
     const currentRunID=process.env.GITHUB_RUN_ID;
-
+    const workflowName=process.env.GITHUB_WORKFLOW;
     const workspace=process.env.GITHUB_WORKSPACE;
     const license=core.getInput('license');
     const baseline=core.getInput('baseline');
@@ -220,86 +220,101 @@ async function run() {
     //per_page=100
     var baselineFound=false;
     var currentBranch=baseline.substring(0,baseline.lastIndexOf('_recent'));
-    const baselineId = Number(baseline);
+    
 
     // Check if the input is a valid integer
-    if (isGitHubRunId(baseline)) {
-      
-      
-      
-      const runId = Number(baseline);
-      
-      try {
-     const run  = await octokit.request("GET /repos/{owner}/{repo}/actions/runs/{run_id}", {
-        owner,
-        repo,
-        run_id: runId,
+    if(baseline!='')
+        {
+      if (isGitHubRunId(baseline)) {
         
-      });
-      
         
-        baselineFound= await checkIfNDependExists(owner,repo,run.data.id,octokit,NDependBaseline,baseLineDir);
-    }
-        catch (error) {
-          if (error.status === 404) {
-            core.warning("run id :"+baseline+" not found.");
-          } else {
-            core.warning("No NDepend artifacts found for this run id :"+baseline);
-          }
+        
+        const runId = Number(baseline);
+        
+        try {
+       const run  = await octokit.request("GET /repos/{owner}/{repo}/actions/runs/{run_id}", {
+          owner,
+          repo,
+          run_id: runId,
           
-        }
-      
-    }
-    else
-    {
-      runs  = await octokit.request("Get /repos/{owner}/{repo}/actions/runs?status=completed&per_page=100&branch={branch}", {
-        owner,
-        repo,
-        branch
+        });
         
-      });
-   
-   
-    for (const runkey in runs.data.workflow_runs) {
-      const run=runs.data.workflow_runs[runkey];
-      if(run.repository.name==repo )
+          
+          baselineFound= await checkIfNDependExists(owner,repo,run.data.id,octokit,NDependBaseline,baseLineDir);
+      }
+          catch (error) {
+            if (error.status === 404) {
+              core.warning("run id :"+baseline+" not found.");
+            } else {
+              core.warning("No NDepend artifacts found for this run id :"+baseline);
+            }
+            
+          }
+        
+      }
+      else
       {
-        const runid=run.id;
-        if (run.head_branch==branch)
+        const workflowsResponse=await octokit.request("Get /repos/{owner}/{repo}/actions/workflows", {
+          owner,
+          repo
+          
+        });
+        
+        const workflows = workflowsResponse.data.workflows;
+       
+  
+        const currentWorkflow=workflows.find(w => w.name === workflowName);
+        const workflow_id=currentWorkflow.id;
+     
+        
+        runs  = await octokit.request("Get /repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs?status=completed&per_page=100&branch={branch}", {
+          owner,
+          repo,
+          workflow_id,
+          branch       
+        });
+        
+      for (const runkey in runs.data.workflow_runs) {
+        const run=runs.data.workflow_runs[runkey];
+        if(run.repository.name==repo )
+        {
+          const runid=run.id;
+          if (run.head_branch==branch)
+            {
+               await copyTrendFileIfExists(owner,repo,runid,octokit,trendsDir);
+            }
+            
+          if (baseline=='recent' && run.head_branch==branch)
           {
-             await copyTrendFileIfExists(owner,repo,runid,octokit,trendsDir);
+            baselineFound= await checkIfNDependExists(owner,repo,runid,octokit,NDependBaseline,baseLineDir);
           }
-          
-        if (baseline=='recent' && run.head_branch==branch)
-        {
-          baselineFound= await checkIfNDependExists(owner,repo,runid,octokit,NDependBaseline,baseLineDir);
-        }
-        else if(baseline.lastIndexOf('_recent')>0)
-        {
-          if(currentBranch==run.head_branch)
-              baselineFound= await checkIfNDependExists(owner,repo,runid,octokit,NDependBaseline,baseLineDir);
-        }
-        else if(run.run_number.toString()==baseline)
-        {
-          
-          baselineFound= await checkIfNDependExists(owner,repo,runid,octokit,NDependBaseline,baseLineDir);
-        } 
-        if(baselineFound)
-        {
-          core.info("Baseline to compare with has the run number:"+run.run_number)
-          break;
+          else if(baseline.lastIndexOf('_recent')>0)
+          {
+            if(currentBranch==run.head_branch)
+                baselineFound= await checkIfNDependExists(owner,repo,runid,octokit,NDependBaseline,baseLineDir);
+          }
+          else if(run.run_number.toString()==baseline)
+          {
+            
+            baselineFound= await checkIfNDependExists(owner,repo,runid,octokit,NDependBaseline,baseLineDir);
+          } 
+          if(baselineFound)
+          {
+            core.info("Baseline to compare with has the run number:"+run.run_number)
+            break;
+          }
         }
       }
     }
-  }
-    if(baseline!=''  && !baselineFound)
-    {
-        if(baseline.indexOf("recent")<0 && isNaN(baseline))
-            core.warning("The baseline value "+baseline+ " is not valid. Valid values are recent , branch_recent, specific run number");
-        else
-            core.warning("No NDepend artifacts found for the baseline, please check if the artifacts are not expired.");
+      if(baseline!=''  && !baselineFound)
+      {
+          if(baseline.indexOf("recent")<0 && isNaN(baseline))
+              core.warning("The baseline value "+baseline+ " is not valid. Valid values are recent , branch_recent, specific run number");
+          else
+              core.warning("No baseline to compare found for :"+baseline);
+          
         
-      
+      }
     }
     var args=['/sourceDirectory',workspace,'/outputDirectory',NDependOut,'/trendsDirectory',trendsDir,'/githubRootUrl',rooturl,'/account',owner,'/identifier',repo,'/buildId',currentRunNumber+" Id "+currentRunID];
 
