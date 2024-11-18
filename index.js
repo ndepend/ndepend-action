@@ -271,7 +271,7 @@ async function run() {
         workflow_id,
         branch       
       });
-      core.info(JSON.stringify(runs));
+      
     for (const runkey in runs.data.workflow_runs) {
       const run=runs.data.workflow_runs[runkey];
       if(run.repository.name==repo )
