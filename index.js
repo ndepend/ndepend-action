@@ -266,19 +266,22 @@ async function run() {
         const currentWorkflow=workflows.find(w => w.name === workflowName);
         const workflow_id=currentWorkflow.id;
      
-        
+        core.info("current workflow id is"+workflow_id);
         runs  = await octokit.request("Get /repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs?status=completed&per_page=100&branch={branch}", {
           owner,
           repo,
           workflow_id,
           branch       
         });
-        
+      core.info("current branch"+currentBranch);
       for (const runkey in runs.data.workflow_runs) {
+        
         const run=runs.data.workflow_runs[runkey];
+        
         if(run.repository.name==repo )
         {
           const runid=run.id;
+          core.info("current run to check:"+run.run_number);
           if (run.head_branch==branch)
             {
                await copyTrendFileIfExists(owner,repo,runid,octokit,trendsDir);
@@ -286,6 +289,7 @@ async function run() {
             
           if (baseline=='recent' && run.head_branch==branch)
           {
+            core.info("current run to check for recent:"+run.run_number);
             baselineFound= await checkIfNDependExists(owner,repo,runid,octokit,NDependBaseline,baseLineDir);
           }
           else if(baseline.lastIndexOf('_recent')>0)
