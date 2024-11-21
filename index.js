@@ -241,8 +241,9 @@ async function run() {
     fs.writeFileSync(licenseFile, license);
     //per_page=100
     var baselineFound=false;
-    var currentBranch=baseline.substring(0,baseline.lastIndexOf('_recent'));
-    
+    if(baseline.lastIndexOf('_recent')>0)
+      branch=baseline.substring(0,baseline.lastIndexOf('_recent'));
+
 
     // Check if the input is a valid integer
     if(baseline!='')
@@ -316,7 +317,7 @@ async function run() {
           }
           else if(baseline.lastIndexOf('_recent')>0)
           {
-            if(currentBranch==run.head_branch)
+            
                 baselineFound= await checkIfNDependExists(owner,repo,runid,octokit,NDependBaseline,baseLineDir);
           }
           else if(run.run_number.toString()==baseline)
