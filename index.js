@@ -260,7 +260,6 @@ async function run() {
       
       const workflows = workflowsResponse.data.workflows;
      
-
       const currentWorkflow=workflows.find(w => w.name === workflowName);
       const workflow_id=currentWorkflow.id;
    
