@@ -24,7 +24,7 @@ The ndepend action must be added after your build and unit testing actions, note
 
 ```yaml
 - name: NDepend
-    uses: ndepend/ndepend-action@v1
+    uses: ndepend/ndepend-action@v2
     with:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
       license: ${{ secrets.NDependLicense }}
@@ -42,7 +42,7 @@ By default the ndepend action uses the out of the box configuration, so this par
 
 ```yaml
 - name: NDepend
-    uses: ndepend/ndepend-action@v1
+    uses: ndepend/ndepend-action@v2
     with:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
       license: ${{ secrets.NDependLicense }}
@@ -55,7 +55,7 @@ By default the ndepend action parse the .sln existing in your repository. Howeve
 
 ```yaml
 - name: NDepend
-    uses: ndepend/ndepend-action@v1
+    uses: ndepend/ndepend-action@v2
     with:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
       license: ${{ secrets.NDependLicense }}
@@ -68,7 +68,7 @@ NDepend can report Code &amp; Quality Diff since a baseline. To define the ndepe
 
 ```yaml
 - name: NDepend
-    uses: ndepend/ndepend-action@v1
+    uses: ndepend/ndepend-action@v2
     with:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
       license: ${{ secrets.NDependLicense }}
@@ -81,7 +81,7 @@ The baseline parameter could have these values:
 - branchname_recent: To compare with the most recent build of the branch with name 'branchname', for example if you want to compare with the recent build of the branch named `mydev`
 ```yaml
 - name: NDepend
-    uses: ndepend/ndepend-action@v1
+    uses: ndepend/ndepend-action@v2
     with:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
       license: ${{ secrets.NDependLicense }}
@@ -90,7 +90,7 @@ The baseline parameter could have these values:
 - run number: The run number of a build already analyzed by NDepend., for example if you want to compare with the build having the run number 30
 ```yaml
 - name: NDepend
-    uses: ndepend/ndepend-action@v1
+    uses: ndepend/ndepend-action@v2
     with:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
       license: ${{ secrets.NDependLicense }}
@@ -109,7 +109,7 @@ To break the build if at least one quality gate failed, just specify the `stopIf
 
 ```yaml
 - name: NDepend
-    uses: ndepend/ndepend-action@v1
+    uses: ndepend/ndepend-action@v2
     with:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
       license: ${{ secrets.NDependLicense }}
@@ -124,7 +124,7 @@ To import coverage data, you have to specify the `coveragefolder` parameter
 
 ```yaml
 - name: NDepend
-    uses: ndepend/ndepend-action@v1
+    uses: ndepend/ndepend-action@v2
     with:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
       license: ${{ secrets.NDependLicense }}

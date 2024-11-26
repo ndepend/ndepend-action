@@ -2,26 +2,33 @@ const core = require('@actions/core');
 const { Octokit } = require("@octokit/action");
 const tc = require('@actions/tool-cache');
 const exec = require('@actions/exec');
-const artifact = require('@actions/artifact');
+const {DefaultArtifactClient} = require('@actions/artifact')
+const artifact = new DefaultArtifactClient();
 const github = require('@actions/github');
 const io = require('@actions/io');
-
+const crypto = require('crypto');
+const NDependAnalyzerHash="0261c493c1df2789c402cb85c3fb81877acd3e2943136f819862ac540a39501e"
 fs = require('fs');
 path = require('path');
+
 
 const artifactFiles=[];
 var artifactsRoot="";
 const trendFiles=[];
 const solutions=[];
+function calculateSHA(input, algorithm = 'sha256') {
+  return crypto.createHash(algorithm).update(input).digest('hex');
+}
 
 function populateArtifacts(dir,basedir) {
   fs.readdirSync(dir).forEach(file => {
     let fullPath = path.join(dir, file);
     if (fs.lstatSync(fullPath).isDirectory()) {
-      if(path.relative( basedir, fullPath ).indexOf("_")>0  )
+     // if(path.relative( basedir, fullPath ).indexOf("_")>0 || path.relative( basedir, fullPath ).indexOf("NDependReportFiles")>=0 || fullPath.indexOf("/NDependReportFiles/src")>=0  )
           populateArtifacts(fullPath,basedir);
      } else {
-      if( (dir!=basedir  && path.relative( basedir, fullPath ).indexOf("_")>0) )
+      //if( dir!=basedir  && (path.relative( basedir, fullPath ).indexOf("_")>0 || fullPath.indexOf("/NDependReportFiles/src")>=0))
+      if(dir!=basedir || fullPath.indexOf("NDependReport.html")>=0)
       {
          artifactFiles.push(fullPath);
       }
@@ -96,7 +103,7 @@ async function checkIfNDependExists(owner,repo,runid,octokit,NDependBaseline,bas
   });
   for (const artifactKey in artifacts.data.artifacts) {
     const artifact=artifacts.data.artifacts[artifactKey];
-    if(artifact.name=="ndepend")
+    if(artifact.name=="ndepend" && !artifact.expired)
     {
       
       var artifactid=artifact.id;
@@ -114,7 +121,38 @@ async function checkIfNDependExists(owner,repo,runid,octokit,NDependBaseline,bas
     }
   }
 }
+async function copyTrendFileIfExists(owner,repo,runid,octokit,trendsDir)
+{
+  const NDependTrendsZip=_getTempDirectory()+"/trends"+runid+".zip";
+  
+  const artifacts  = await octokit.request("Get /repos/{owner}/{repo}/actions/runs/{runid}/artifacts", {
+    owner,
+    repo,
+    runid
+  });
+  for (const artifactKey in artifacts.data.artifacts) {
+    const artifact=artifacts.data.artifacts[artifactKey];
+    if(artifact.name=="ndependtrend" && !artifact.expired)
+    {
+      
+      var artifactid=artifact.id;
+      //core.info("artifact found:"+artifactid);
 
+      response  = await octokit.request("Get /repos/{owner}/{repo}/actions/artifacts/{artifactid}/zip", {
+        owner,
+        repo,
+        artifactid
+      });
+      const NDependTrendsDir=  trendsDir+"/run"+runid;
+      fs.writeFileSync(NDependTrendsZip, Buffer.from(response.data),  "binary",function(err) { });
+          const baselineExtractedFolder = await tc.extractZip(NDependTrendsZip, NDependTrendsDir);
+          return true;
+    }
+  }
+}
+function isGitHubRunId(str) {
+  return /^\d{8,12}$/.test(str); // Accepts run IDs between 8 and 10 digits long
+}
 async function run() {
   try {
     
@@ -124,7 +162,7 @@ async function run() {
     const [owner, repo] = process.env.GITHUB_REPOSITORY.split("/");
     const currentRunNumber=process.env.GITHUB_RUN_NUMBER;
     const currentRunID=process.env.GITHUB_RUN_ID;
-
+    const workflowName=process.env.GITHUB_WORKFLOW;
     const workspace=process.env.GITHUB_WORKSPACE;
     const license=core.getInput('license');
     const baseline=core.getInput('baseline');
@@ -153,35 +191,103 @@ async function run() {
     const ndependToolURL = await tc.downloadTool('https://www.codergears.com/protected/GitHubActionAnalyzer.zip');
     //fs.copyFileSync(ndependToolURL, _getTempDirectory()+"/NDependTask.zip",fs.constants.COPYFILE_FICLONE_FORCE);
     await io.cp(ndependToolURL, _getTempDirectory()+"/NDependTask.zip")
+    const tooldata = fs.readFileSync(_getTempDirectory()+"/NDependTask.zip", 'utf8');
+
+    const hash = calculateSHA(tooldata, 'sha256');
+    core.info("Get NDepend Analyzer with the SHA:");
+    core.info(hash);
+    if(hash!=NDependAnalyzerHash)
+    {
+      core.setFailed("The NDepend Analyzer SHA does not match the latest tool hash. Please contact the NDepend support to have more details about the issue.")
+    }
     const ndependExtractedFolder = await tc.extractZip(_getTempDirectory()+"/NDependTask.zip", _getTempDirectory()+'/NDepend');
     var NDependParser=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/GitHubActionAnalyzer.exe"
     const licenseFile=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/NDependGitHubActionProLicense.xml"
     const configFile=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/NDependConfig.ndproj"
     const baseLineDir=_getTempDirectory()+'/NDependBaseLine';
+    const trendsDir=_getTempDirectory()+'/NDependTrends';
+    
     const NDependOut=_getTempDirectory()+"/NDependOut";
     const NDependBaseline=_getTempDirectory()+"/baseline.zip";
+    // const NDependTrendsZip=_getTempDirectory()+"/trends.zip";
+    
 
     //add license file in ndepend install directory
+    fs.mkdirSync(trendsDir);
     fs.mkdirSync(NDependOut);
     fs.writeFileSync(licenseFile, license);
-    runs  = await octokit.request("Get /repos/{owner}/{repo}/actions/runs", {
-      owner,
-      repo
-      
-    });
     var baselineFound=false;
+    var currentBranch=baseline.substring(0,baseline.lastIndexOf('_recent'));
+    
+
+    // Check if the input is a valid integer
+    if(baseline!='')
+      {
+    if (isGitHubRunId(baseline)) {
+      
+      
+      
+      const runId = Number(baseline);
+      
+      try {
+     const run  = await octokit.request("GET /repos/{owner}/{repo}/actions/runs/{run_id}", {
+        owner,
+        repo,
+        run_id: runId,
+        
+      });
+      
+        
+        baselineFound= await checkIfNDependExists(owner,repo,run.data.id,octokit,NDependBaseline,baseLineDir);
+    }
+        catch (error) {
+          if (error.status === 404) {
+            core.warning("run id :"+baseline+" not found.");
+          } else {
+            core.warning("No NDepend artifacts found for this run id :"+baseline);
+          }
+          
+        }
+      
+    }
+    else
+    {
+      const workflowsResponse=await octokit.request("Get /repos/{owner}/{repo}/actions/workflows", {
+        owner,
+        repo
+        
+      });
+      
+      const workflows = workflowsResponse.data.workflows;
+     
+
+      const currentWorkflow=workflows.find(w => w.name === workflowName);
+      const workflow_id=currentWorkflow.id;
+   
+      
+      runs  = await octokit.request("Get /repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs?status=completed&per_page=100&branch={branch}", {
+        owner,
+        repo,
+        workflow_id,
+        branch       
+      });
+      
     for (const runkey in runs.data.workflow_runs) {
       const run=runs.data.workflow_runs[runkey];
       if(run.repository.name==repo )
       {
         const runid=run.id;
+        if (run.head_branch==branch)
+          {
+             await copyTrendFileIfExists(owner,repo,runid,octokit,trendsDir);
+          }
+          
         if (baseline=='recent' && run.head_branch==branch)
         {
           baselineFound= await checkIfNDependExists(owner,repo,runid,octokit,NDependBaseline,baseLineDir);
         }
         else if(baseline.lastIndexOf('_recent')>0)
         {
-          var currentBranch=baseline.substring(0,baseline.lastIndexOf('_recent'));
           if(currentBranch==run.head_branch)
               baselineFound= await checkIfNDependExists(owner,repo,runid,octokit,NDependBaseline,baseLineDir);
         }
@@ -196,7 +302,8 @@ async function run() {
           break;
         }
       }
-    };
+    }
+  }
     if(baseline!=''  && !baselineFound)
     {
         if(baseline.indexOf("recent")<0 && isNaN(baseline))
@@ -206,7 +313,8 @@ async function run() {
         
       
     }
-    var args=['/sourceDirectory',workspace,'/outputDirectory',NDependOut,'/githubRootUrl',rooturl,'/account',owner,'/identifier',repo,'/buildId',currentRunNumber+" Id "+currentRunID];
+  }
+    var args=['/sourceDirectory',workspace,'/outputDirectory',NDependOut,'/trendsDirectory',trendsDir,'/githubRootUrl',rooturl,'/account',owner,'/identifier',repo,'/buildId',currentRunNumber+" Id "+currentRunID];
 
     var configfilePath=workspace+"/"+configPath;
       if (!fs.existsSync(configfilePath)) {
@@ -276,7 +384,7 @@ async function run() {
 
     }
 
-    const artifactClient = artifact.create()
+    const artifactClient = new DefaultArtifactClient();
     const artifactName = 'ndepend';
 
     var files=[];
@@ -339,10 +447,7 @@ async function run() {
         if(message.indexOf("at least one Quality Gate failed")>0 && stopifQGfailed=='true')
           core.setFailed("The NDepend action failed the build because at least one Quality Gate failed and stopIfQGFailed is set to true  in the action options.");
 
-      }
-
-     
-      
+      }     
       
       } catch (error) {
         core.setFailed(error.message);
