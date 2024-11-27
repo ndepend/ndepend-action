@@ -121,6 +121,24 @@ async function checkIfNDependExists(owner,repo,runid,octokit,NDependBaseline,bas
     }
   }
 }
+function getCurrentBranch () {
+  const ref = process.env.GITHUB_REF; // e.g., "refs/heads/main" or "refs/pull/42/merge"
+  const headRef = process.env.GITHUB_HEAD_REF; // e.g., "feature-branch" (only for pull requests)
+
+  if (headRef) {
+    // Pull Request: Use headRef for the source branch
+    core.info(`This is a pull request build. Current branch: ${headRef}`);
+    return headRef;
+  } else if (ref.startsWith("refs/heads/")) {
+    // Push or similar event: Extract branch name from ref
+    const branch = ref.replace("refs/heads/", "");
+    core.info(`This is a push or non-PR event. Current branch: ${branch}`);
+    return branch;
+  } else {
+    core.warning("Unable to determine the branch name.");
+    return null;
+  }
+};
 async function copyTrendFileIfExists(owner,repo,runid,octokit,trendsDir)
 {
   const NDependTrendsZip=_getTempDirectory()+"/trends"+runid+".zip";
@@ -172,11 +190,8 @@ async function run() {
     const coveragePath = core.getInput('coveragefolder');
     const retentionDaysStr = core.getInput('retention-days')
    
-    var branch=process.env.GITHUB_REF;
-     if(branch.lastIndexOf('/')>0)
-          branch=branch.substring(branch.lastIndexOf('/')+1);
-       
-    if(branch=="")
+    branch=getCurrentBranch();
+    if(branch==null || branch=="")
         branch="main";
 
     let rooturl=process.env.GITHUB_SERVER_URL+"/"+process.env.GITHUB_REPOSITORY+"/blob/"+branch;
@@ -217,7 +232,8 @@ async function run() {
     fs.mkdirSync(NDependOut);
     fs.writeFileSync(licenseFile, license);
     var baselineFound=false;
-    var currentBranch=baseline.substring(0,baseline.lastIndexOf('_recent'));
+    if(baseline.lastIndexOf('_recent')>0)
+      branch=baseline.substring(0,baseline.lastIndexOf('_recent'));
     
 
     // Check if the input is a valid integer
@@ -287,7 +303,7 @@ async function run() {
         }
         else if(baseline.lastIndexOf('_recent')>0)
         {
-          if(currentBranch==run.head_branch)
+          
               baselineFound= await checkIfNDependExists(owner,repo,runid,octokit,NDependBaseline,baseLineDir);
         }
         else if(run.run_number.toString()==baseline)
