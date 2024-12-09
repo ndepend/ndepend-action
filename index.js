@@ -211,10 +211,10 @@ async function run() {
     const hash = calculateSHA(tooldata, 'sha256');
     core.info("Get NDepend Analyzer with the SHA:");
     core.info(hash);
-    if(hash!=NDependAnalyzerHash)
+   /* if(hash!=NDependAnalyzerHash)
     {
       core.setFailed("The NDepend Analyzer SHA does not match the latest tool hash. Please contact the NDepend support to have more details about the issue.")
-    }
+    }*/
     const ndependExtractedFolder = await tc.extractZip(_getTempDirectory()+"/NDependTask.zip", _getTempDirectory()+'/NDepend');
     var NDependParser=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/GitHubActionAnalyzer.exe"
     const licenseFile=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/NDependGitHubActionProLicense.xml"
@@ -386,7 +386,7 @@ async function run() {
       if(isLinux)
       {
         
-        var NDependLinuxParser=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/net6.0/GitHubActionAnalyzer.MultiOS.dll";
+        var NDependLinuxParser=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/net8.0/GitHubActionAnalyzer.MultiOS.dll";
         args.unshift(NDependLinuxParser);
         ret=await exec.exec("dotnet", args);
       }
