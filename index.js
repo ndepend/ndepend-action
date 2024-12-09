@@ -6,7 +6,7 @@ const artifact = require('@actions/artifact');
 const github = require('@actions/github');
 const io = require('@actions/io');
 const crypto = require('crypto');
-const NDependAnalyzerHash="0261c493c1df2789c402cb85c3fb81877acd3e2943136f819862ac540a39501e"
+const NDependAnalyzerHash="2d5001062438b4dbcf13283a47dfbaf339d0a8c77a9de60aab6ac649f1f1a5bf"
 
 fs = require('fs');
 path = require('path');
@@ -400,7 +400,7 @@ async function run() {
       if(isLinux)
       {
         
-        var NDependLinuxParser=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/net6.0/GitHubActionAnalyzer.MultiOS.dll";
+        var NDependLinuxParser=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/net8.0/GitHubActionAnalyzer.MultiOS.dll";
         args.unshift(NDependLinuxParser);
         ret=await exec.exec("dotnet", args);
       }
