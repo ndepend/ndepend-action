@@ -94301,8 +94301,6 @@ async function run() {
           }
         
       }
-      else
-      {
         const workflowsResponse=await octokit.request("Get /repos/{owner}/{repo}/actions/workflows", {
           owner,
           repo
@@ -94336,29 +94334,42 @@ async function run() {
                await copyTrendFileIfExists(owner,repo,runid,octokit,trendsDir);
             }
             
-          if (baseline=='recent' && run.head_branch==branch)
+          if (!baselineFound && baseline=='recent' && run.head_branch==branch)
           {
-            core.info("current run to check for recent:"+run.run_number);
+            //core.info("current run to check for recent:"+run.run_number);
             baselineFound= await checkIfNDependExists(owner,repo,runid,octokit,NDependBaseline,baseLineDir);
+            if(baselineFound)
+              {
+                core.info("Baseline to compare with has the run number:"+run.run_number)
+              
+              }
+           
           }
-          else if(baseline.lastIndexOf('_recent')>0)
+          else if(!baselineFound && baseline.lastIndexOf('_recent')>0)
           {
             
                 baselineFound= await checkIfNDependExists(owner,repo,runid,octokit,NDependBaseline,baseLineDir);
+                if(baselineFound)
+                  {
+                    core.info("Baseline to compare with has the run number:"+run.run_number)
+                  
+                  }
+               
           }
-          else if(run.run_number.toString()==baseline)
+          else if(!baselineFound && run.run_number.toString()==baseline)
           {
             
             baselineFound= await checkIfNDependExists(owner,repo,runid,octokit,NDependBaseline,baseLineDir);
+            if(baselineFound)
+              {
+                core.info("Baseline to compare with has the run number:"+run.run_number)
+              
+              }
+            
           } 
-          if(baselineFound)
-          {
-            core.info("Baseline to compare with has the run number:"+run.run_number)
-            break;
-          }
         }
       }
-    }
+    
       if(baseline!=''  && !baselineFound)
       {
           if(baseline.indexOf("recent")<0 && isNaN(baseline))
