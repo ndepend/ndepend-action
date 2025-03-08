@@ -93924,7 +93924,6 @@ const NDependAnalyzerHash="2d5001062438b4dbcf13283a47dfbaf339d0a8c77a9de60aab6ac
 fs = __nccwpck_require__(7147);
 path = __nccwpck_require__(1017);
 
-
 const artifactFiles=[];
 var artifactsRoot="";
 const trendFiles=[];
@@ -94189,6 +94188,8 @@ async function run() {
           }
         
       }
+      else
+      {
         const workflowsResponse=await octokit.request("Get /repos/{owner}/{repo}/actions/workflows", {
           owner,
           repo
@@ -94222,42 +94223,29 @@ async function run() {
                await copyTrendFileIfExists(owner,repo,runid,octokit,trendsDir);
             }
             
-          if (!baselineFound && baseline=='recent' && run.head_branch==branch)
+          if (baseline=='recent' && run.head_branch==branch)
           {
-            //core.info("current run to check for recent:"+run.run_number);
+            core.info("current run to check for recent:"+run.run_number);
             baselineFound= await checkIfNDependExists(owner,repo,runid,octokit,NDependBaseline,baseLineDir);
-            if(baselineFound)
-              {
-                core.info("Baseline to compare with has the run number:"+run.run_number)
-              
-              }
-           
           }
-          else if(!baselineFound && baseline.lastIndexOf('_recent')>0)
+          else if(baseline.lastIndexOf('_recent')>0)
           {
             
                 baselineFound= await checkIfNDependExists(owner,repo,runid,octokit,NDependBaseline,baseLineDir);
-                if(baselineFound)
-                  {
-                    core.info("Baseline to compare with has the run number:"+run.run_number)
-                  
-                  }
-               
           }
-          else if(!baselineFound && run.run_number.toString()==baseline)
+          else if(run.run_number.toString()==baseline)
           {
             
             baselineFound= await checkIfNDependExists(owner,repo,runid,octokit,NDependBaseline,baseLineDir);
-            if(baselineFound)
-              {
-                core.info("Baseline to compare with has the run number:"+run.run_number)
-              
-              }
-            
           } 
+          if(baselineFound)
+          {
+            core.info("Baseline to compare with has the run number:"+run.run_number)
+            break;
+          }
         }
       }
-    
+    }
       if(baseline!=''  && !baselineFound)
       {
           if(baseline.indexOf("recent")<0 && isNaN(baseline))
