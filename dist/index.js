@@ -197480,6 +197480,8 @@ async function run() {
         const runid=run.id;
         if (run.head_branch==branch)
           {
+            core.info("Check if trend data exists for the run number:"+run.run_number)
+       
              await copyTrendFileIfExists(owner,repo,runid,octokit,trendsDir);
           }
           
