@@ -7,7 +7,7 @@ const artifact = new DefaultArtifactClient();
 const github = require('@actions/github');
 const io = require('@actions/io');
 const crypto = require('crypto');
-const NDependAnalyzerHash="2d5001062438b4dbcf13283a47dfbaf339d0a8c77a9de60aab6ac649f1f1a5bf"
+const NDependAnalyzerHash="3679349500e8818f66729f0dee3dc5c9f2fa933fd99b7ffbd358df4df37f4a55"
 fs = require('fs');
 path = require('path');
 
