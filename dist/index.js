@@ -94120,7 +94120,7 @@ const artifact = __nccwpck_require__(5170);
 const github = __nccwpck_require__(4334);
 const io = __nccwpck_require__(9207);
 const crypto = __nccwpck_require__(6113);
-const NDependAnalyzerHash="3679349500e8818f66729f0dee3dc5c9f2fa933fd99b7ffbd358df4df37f4a55"
+const NDependAnalyzerHash="d74f5d66c0b4fd4124d5ed0fb6ac4220fd3f4d78db7597a643b654661ef3cf4a"
 
 
 fs = __nccwpck_require__(7147);
@@ -94333,10 +94333,10 @@ async function run() {
     const hash = calculateSHA(tooldata, 'sha256');
     core.info("Get NDepend Analyzer with the SHA:");
     core.info(hash);
-    /*if(hash!=NDependAnalyzerHash)
+    if(hash!=NDependAnalyzerHash)
     {
       core.setFailed("The NDepend Analyzer SHA does not match the latest tool hash. Please contact the NDepend support to have more details about the issue.")
-    }*/
+    }
     const ndependExtractedFolder = await tc.extractZip(_getTempDirectory()+"/NDependTask.zip", _getTempDirectory()+'/NDepend');
     var NDependParser=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/GitHubActionAnalyzer.exe"
     const licenseFile=_getTempDirectory()+"/NDepend/GitHubActionAnalyzer/NDependGitHubActionProLicense.xml"
