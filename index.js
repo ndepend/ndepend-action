@@ -57,7 +57,7 @@ function populateSolutions(dir) {
        
       populateSolutions(fullPath);
      } else {
-      if (fullPath.endsWith(".sln")) {
+      if (fullPath.endsWith(".sln") || fullPath.endsWith(".slnx")) {
         solutions.push(fullPath);
        }
       
@@ -356,6 +356,17 @@ async function run() {
       args.push(workspace+"/"+configPath);
       
     }
+    else if(solution!='')
+    {
+      var solutionFilePath=workspace+"/"+solution;
+      if (fs.existsSync(solutionFilePath))
+      {
+        args.push("/solutionPath");
+        args.push(solutionFilePath);
+      }
+      else
+        core.setFailed("The VS solution "+solution+" specified from the action inputs is not found in this repository")
+    }
     else
     {
       populateSolutions(workspace);
@@ -365,20 +376,9 @@ async function run() {
           args.push(solutions[0]);
       }
       else if(solutions.length > 1)
-      {
-        if(solution!='')
-        {
-          args.push("/solutionPath");
-          args.push(workspace+"/"+solution);
-      
-        }
-        else
-          core.setFailed("More than one VS solution is found in this repository, please specify which one you want to parse from the action inputs")
-      }
-      else if(solutions.length ==0 )
-      {
+        core.setFailed("More than one VS solution is found in this repository, please specify which one you want to parse from the action inputs")
+      else
         core.setFailed("No VS solution is found in this repository")
-      }
     }
     getNDependResult(baseLineDir);
     if(baselineFound && ndependResultFile!=""  && fs.existsSync(ndependResultFile))

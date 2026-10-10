@@ -51,7 +51,7 @@ By default the ndepend action uses the out of the box configuration, so this par
 The project.ndproj file must be uploaded to your repository, its path is relative to your repository root. And its name could be any name of your choice. 
 
 ### Visual Studio Solution:
-By default the ndepend action parse the .sln existing in your repository. However, if many .sln files are found you have to secify which solution to parse. For that you can use `solution` parameter 
+By default the ndepend action parses the .sln or .slnx file existing in your repository. However, if many solution files are found you have to specify which solution to parse. For that you can use the `solution` parameter. When `solution` is specified it is always used, even if only one solution file exists in the repository.
 
 ```yaml
 - name: NDepend
