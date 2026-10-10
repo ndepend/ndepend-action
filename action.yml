@@ -13,7 +13,7 @@ inputs:
     required: false
     default: ''
   solution:  
-    description: '.sln file'
+    description: '.sln or .slnx file'
     required: false
     default: ''
   stopIfQGFailed:  
